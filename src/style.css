@@ -1061,18 +1061,27 @@ body.walk-mode {
 
 /* ══════════════════════ UNSUPPORTED FORMAT NOTICE ══════════════════════ */
 .format-notice {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
   padding: var(--sp-lg);
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.3);
+  background: rgba(15, 10, 10, 0.85);
+  border: 1px solid rgba(245,158,11,0.5);
   border-radius: var(--r-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
   margin: var(--sp-md);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--warning);
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
+  max-width: 90%;
+  width: 480px;
 }
-.format-notice .material-icons-round { font-size: 18px; flex-shrink: 0; }
+.format-notice .material-icons-round { font-size: 20px; flex-shrink: 0; color: #f59e0b; }
 
 /* ══════════════════════ RESPONSIVE — MOBILE ══════════════════════ */
 @media (max-width: 768px) {
