@@ -155,7 +155,6 @@ export class UIController {
     this._setupSlider('slider-ambient',     'val-ambient',     v => this.viewer.setAmbientIntensity(v));
     this._setupSlider('slider-directional', 'val-directional', v => this.viewer.setDirectionalIntensity(v));
     this._setupSlider('slider-exposure',    'val-exposure',    v => this.viewer.setExposure(v));
-    this._setupSlider('slider-bloom',       'val-bloom',       v => { /* bloom handled by PostProcessing */ });
 
     // Background options
     document.querySelectorAll('.bg-btn[data-bg]').forEach(btn => {
