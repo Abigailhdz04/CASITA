@@ -38,6 +38,11 @@ viewer.start();
 gizmo.start();
 stats.start();
 
+// ─── Load default model ───
+loader.loadFromUrl('/casa.glb', 'casa.glb', 25638780).catch(err => {
+  console.error('[Main] Error loading default model:', err);
+});
+
 // ─── VR availability check ───
 vrManager.checkAvailability().then(available => {
   if (!available) {

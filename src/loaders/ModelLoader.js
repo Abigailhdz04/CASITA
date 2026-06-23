@@ -126,6 +126,79 @@ export class ModelLoader {
     }
   }
 
+  /**
+   * Load from a URL (e.g. default models)
+   */
+  async loadFromUrl(url, fileName, fileSize = 0, onProgress) {
+    const ext = ('.' + fileName.split('.').pop()).toLowerCase();
+
+    // Check for unsupported/advisory formats
+    if (UNSUPPORTED.has(ext)) {
+      const msg = NOTICE_FORMATS[ext] || `El formato ${ext} no está soportado directamente.`;
+      this._showFormatNotice(msg, fileName);
+      return;
+    }
+
+    // Show loading overlay
+    this._setLoading(true, `Cargando ${fileName}...`);
+
+    try {
+      let result;
+
+      switch (ext) {
+        case '.glb':
+        case '.gltf':
+        case '.usdz':
+          result = await this._loadGLTF(url, onProgress);
+          break;
+        case '.fbx':
+          result = await this._loadFBX(url, onProgress);
+          break;
+        case '.obj':
+          result = await this._loadOBJ(url, null, onProgress);
+          break;
+        case '.stl':
+          result = await this._loadSTL(url, onProgress);
+          break;
+        case '.ply':
+          result = await this._loadPLY(url, onProgress);
+          break;
+        case '.dae':
+          result = await this._loadDAE(url, onProgress);
+          break;
+        default:
+          throw new Error(`Formato ${ext} no reconocido`);
+      }
+
+      // Store original materials on each mesh
+      result.object.traverse(child => {
+        if (child.isMesh) {
+          child.userData._originalMaterial = Array.isArray(child.material)
+            ? child.material.map(m => m.clone())
+            : child.material.clone();
+          child.userData._originalColor = child.material?.color?.getHex?.() ?? 0x888899;
+        }
+      });
+
+      this.viewer.loadModel(result.object, {
+        animations: result.animations || [],
+        format: ext,
+        fileName,
+        fileSize,
+      });
+
+      this._setLoading(false);
+      showToast(`✓ Modelo cargado: ${fileName}`, 'success');
+
+      return result;
+    } catch (err) {
+      this._setLoading(false);
+      console.error('[ModelLoader] Error loading from URL:', err);
+      showToast(`Error al cargar: ${err.message}`, 'error');
+      throw err;
+    }
+  }
+
   /* ─── Individual loaders ─── */
 
   _loadGLTF(url, onProgress) {
