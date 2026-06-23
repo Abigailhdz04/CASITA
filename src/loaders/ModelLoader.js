@@ -130,14 +130,10 @@ export class ModelLoader {
    * Load from a URL (e.g. default models)
    */
   async loadFromUrl(url, fileName, fileSize = 0, onProgress) {
-    const ext = ('.' + fileName.split('.').pop()).toLowerCase();
-
-    // Check for unsupported/advisory formats
-    if (UNSUPPORTED.has(ext)) {
-      const msg = NOTICE_FORMATS[ext] || `El formato ${ext} no está soportado directamente.`;
-      this._showFormatNotice(msg, fileName);
-      return;
-    }
+    // Determine internal loading format from the URL extension
+    const ext = ('.' + url.split('?')[0].split('.').pop()).toLowerCase();
+    // Determine displayed format from the fileName extension
+    const displayExt = ('.' + fileName.split('.').pop()).toLowerCase();
 
     // Show loading overlay
     this._setLoading(true, `Cargando ${fileName}...`);
@@ -182,7 +178,7 @@ export class ModelLoader {
 
       this.viewer.loadModel(result.object, {
         animations: result.animations || [],
-        format: ext,
+        format: displayExt,
         fileName,
         fileSize,
       });
