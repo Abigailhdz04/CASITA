@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="description" content="BlenderVR — Visor 3D Profesional. Visualiza modelos de Blender en cualquier dispositivo con WebGL y WebXR." />
+  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <title>BlenderVR — Visor 3D Profesional</title>
+  
+  <!-- Google Fonts: Inter + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <!-- ═══════════════════════════════════════ APP SHELL ═══════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- TOP TOOLBAR -->
+    <header id="toolbar">
+      <div class="toolbar-left">
+        <button id="btn-sidebar-toggle" class="icon-btn" title="Menú lateral" aria-label="Toggle sidebar">
+          <span class="material-icons-round">menu</span>
+        </button>
+        <div class="logo">
+          <span class="logo-icon">⬡</span>
+          <span class="logo-text">Blender<span class="logo-accent">VR</span></span>
+        </div>
+      </div>
+
+      <div class="toolbar-center" id="mode-buttons">
+        <button class="mode-btn active" data-mode="realistic" title="Renderizado Realista">
+          <span class="material-icons-round">auto_awesome</span>
+          <span class="btn-label">Realista</span>
+        </button>
+        <button class="mode-btn" data-mode="solid" title="Sólido">
+          <span class="material-icons-round">crop_square</span>
+          <span class="btn-label">Sólido</span>
+        </button>
+        <button class="mode-btn" data-mode="wireframe" title="Malla">
+          <span class="material-icons-round">grid_on</span>
+          <span class="btn-label">Malla</span>
+        </button>
+        <button class="mode-btn" data-mode="textured" title="Texturizado">
+          <span class="material-icons-round">texture</span>
+          <span class="btn-label">Textura</span>
+        </button>
+        <button class="mode-btn" data-mode="normals" title="Normales">
+          <span class="material-icons-round">blur_on</span>
+          <span class="btn-label">Normales</span>
+        </button>
+        <div class="toolbar-divider"></div>
+        <button class="mode-btn" data-mode="walk" title="Recorrido Arquitectónico" id="btn-walk-mode">
+          <span class="material-icons-round">directions_walk</span>
+          <span class="btn-label">Recorrido</span>
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <div class="quality-selector" title="Calidad Gráfica">
+          <span class="material-icons-round">hd</span>
+          <select id="quality-select" aria-label="Calidad gráfica">
+            <option value="low">Baja</option>
+            <option value="medium">Media</option>
+            <option value="high" selected>Alta</option>
+            <option value="ultra">Ultra</option>
+          </select>
+        </div>
+        <button id="btn-screenshot" class="icon-btn" title="Captura PNG">
+          <span class="material-icons-round">camera_alt</span>
+        </button>
+        <button id="btn-fullscreen" class="icon-btn" title="Pantalla Completa">
+          <span class="material-icons-round">fullscreen</span>
+        </button>
+        <button id="btn-vr" class="icon-btn vr-btn" title="Entrar a VR" id="btn-enter-vr">
+          <span class="material-icons-round">view_in_ar</span>
+          <span class="btn-label">Entrar a VR</span>
+        </button>
+        <button id="btn-theme" class="icon-btn" title="Cambiar Tema" aria-label="Toggle theme">
+          <span class="material-icons-round">dark_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="main">
+
+      <!-- LEFT SIDEBAR -->
+      <aside id="sidebar" class="open">
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span class="material-icons-round">upload_file</span> Cargar Modelo
+          </h3>
+          <button id="btn-load-model" class="primary-btn">
+            <span class="material-icons-round">folder_open</span>
+            Seleccionar Modelo
+          </button>
+          <input type="file" id="file-input" accept=".glb,.gltf,.fbx,.obj,.stl,.ply,.dae,.3ds,.usdz" multiple hidden />
+          <p class="sidebar-hint">Arrastra y suelta archivos 3D aquí o haz clic para seleccionar</p>
+          <p class="sidebar-hint format-list">GLB · GLTF · FBX · OBJ · STL · PLY · DAE</p>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span class="material-icons-round">camera</span> Vistas Rápidas
+          </h3>
+          <div class="view-grid">
+            <button class="view-btn" data-view="front" title="Frontal">
+              <span class="material-icons-round">arrow_forward</span> Frente
+            </button>
+            <button class="view-btn" data-view="back" title="Trasera">
+              <span class="material-icons-round">arrow_back</span> Atrás
+            </button>
+            <button class="view-btn" data-view="left" title="Izquierda">
+              <span class="material-icons-round">chevron_left</span> Izq.
+            </button>
+            <button class="view-btn" data-view="right" title="Derecha">
+              <span class="material-icons-round">chevron_right</span> Der.
+            </button>
+            <button class="view-btn" data-view="top" title="Superior">
+              <span class="material-icons-round">keyboard_arrow_up</span> Arriba
+            </button>
+            <button class="view-btn" data-view="bottom" title="Inferior">
+              <span class="material-icons-round">keyboard_arrow_down</span> Abajo
+            </button>
+            <button class="view-btn full-width" data-view="iso" title="Isométrica">
+              <span class="material-icons-round">view_in_ar</span> Isométrica
+            </button>
+            <button class="view-btn full-width" id="btn-reset-view" title="Restablecer">
+              <span class="material-icons-round">center_focus_strong</span> Restablecer
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span class="material-icons-round">360</span> Animación
+          </h3>
+          <div class="toggle-row">
+            <label class="toggle-label">Rotación Automática</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-auto-rotate" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle-label">Mostrar Ejes</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-axes" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle-label">Grid</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-grid" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <label class="toggle-label">Sombras</label>
+            <label class="switch">
+              <input type="checkbox" id="toggle-shadows" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span class="material-icons-round">wb_sunny</span> Iluminación
+          </h3>
+          <div class="slider-control">
+            <label>Ambiental <span class="slider-val" id="val-ambient">0.5</span></label>
+            <input type="range" id="slider-ambient" min="0" max="3" step="0.05" value="0.5" />
+          </div>
+          <div class="slider-control">
+            <label>Direccional <span class="slider-val" id="val-directional">1.5</span></label>
+            <input type="range" id="slider-directional" min="0" max="5" step="0.1" value="1.5" />
+          </div>
+          <div class="slider-control">
+            <label>Exposición <span class="slider-val" id="val-exposure">1.0</span></label>
+            <input type="range" id="slider-exposure" min="0.1" max="3" step="0.05" value="1.0" />
+          </div>
+          <div class="slider-control">
+            <label>Bloom <span class="slider-val" id="val-bloom">0.3</span></label>
+            <input type="range" id="slider-bloom" min="0" max="2" step="0.05" value="0.3" />
+          </div>
+          <div class="sidebar-subsection">
+            <label class="subsection-title">Fondo</label>
+            <div class="bg-options">
+              <button class="bg-btn active" data-bg="gradient" title="Degradado">
+                <span class="bg-preview gradient-preview"></span>
+              </button>
+              <button class="bg-btn" data-bg="black" title="Negro">
+                <span class="bg-preview black-preview"></span>
+              </button>
+              <button class="bg-btn" data-bg="white" title="Blanco">
+                <span class="bg-preview white-preview"></span>
+              </button>
+              <button class="bg-btn" data-bg="transparent" title="Transparente">
+                <span class="bg-preview transparent-preview">⊘</span>
+              </button>
+              <button class="bg-btn" data-bg="hdri" title="HDRI">
+                <span class="bg-preview hdri-preview">HDR</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span class="material-icons-round">straighten</span> Herramientas
+          </h3>
+          <button class="tool-btn" id="btn-measure">
+            <span class="material-icons-round">straighten</span> Medir Distancias
+          </button>
+          <button class="tool-btn" id="btn-screenshot-jpg">
+            <span class="material-icons-round">image</span> Captura JPG
+          </button>
+          <button class="tool-btn" id="btn-screenshot-png">
+            <span class="material-icons-round">photo</span> Captura PNG
+          </button>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">
+            <span class="material-icons-round">tv</span> Compartir
+          </h3>
+          <button class="tool-btn" id="btn-tv-mirror">
+            <span class="material-icons-round">cast</span> Modo Presentación TV
+          </button>
+          <button class="tool-btn" id="btn-spectator">
+            <span class="material-icons-round">visibility</span> Vista Espectador VR
+          </button>
+        </div>
+      </aside>
+
+      <!-- 3D VIEWPORT -->
+      <div id="viewport">
+        <!-- Canvas injected by JS -->
+        
+        <!-- DROP ZONE OVERLAY -->
+        <div id="drop-overlay" class="hidden">
+          <div class="drop-content">
+            <div class="drop-icon">
+              <span class="material-icons-round">cloud_upload</span>
+            </div>
+            <h2>Suelta el modelo aquí</h2>
+            <p>GLB · GLTF · FBX · OBJ · STL · PLY · DAE</p>
+          </div>
+        </div>
+
+        <!-- WELCOME SCREEN -->
+        <div id="welcome-screen">
+          <div class="welcome-content">
+            <div class="welcome-logo">
+              <div class="logo-3d">⬡</div>
+              <h1>Blender<span class="accent">VR</span></h1>
+              <p class="tagline">Visor 3D Profesional — WebGL · WebXR</p>
+            </div>
+            <div class="welcome-features">
+              <div class="feature-card">
+                <span class="material-icons-round">view_in_ar</span>
+                <span>Realidad Virtual</span>
+              </div>
+              <div class="feature-card">
+                <span class="material-icons-round">devices</span>
+                <span>Multi-dispositivo</span>
+              </div>
+              <div class="feature-card">
+                <span class="material-icons-round">auto_awesome</span>
+                <span>PBR Materiales</span>
+              </div>
+              <div class="feature-card">
+                <span class="material-icons-round">directions_walk</span>
+                <span>Recorrido Arquitectónico</span>
+              </div>
+            </div>
+            <button class="welcome-load-btn" id="btn-welcome-load">
+              <span class="material-icons-round">upload_file</span>
+              Cargar Modelo 3D
+            </button>
+            <p class="welcome-hint">o arrastra un archivo directamente</p>
+            <div class="supported-formats">
+              <span>Formatos soportados:</span>
+              <div class="format-tags">
+                <span class="tag">GLB</span><span class="tag">GLTF</span><span class="tag">FBX</span>
+                <span class="tag">OBJ</span><span class="tag">STL</span><span class="tag">PLY</span>
+                <span class="tag">DAE</span><span class="tag">3DS</span><span class="tag">USDZ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOADING OVERLAY -->
+        <div id="loading-overlay" class="hidden">
+          <div class="loading-content">
+            <div class="loading-spinner">
+              <div class="spinner-ring"></div>
+              <div class="spinner-icon">⬡</div>
+            </div>
+            <h3 id="loading-text">Cargando modelo...</h3>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <p class="progress-percent" id="progress-percent">0%</p>
+          </div>
+        </div>
+
+        <!-- QUICK CONTROLS (viewport overlay) -->
+        <div id="quick-controls">
+          <button class="quick-btn" id="qb-rotate" title="Rotación Auto">
+            <span class="material-icons-round">360</span>
+          </button>
+          <button class="quick-btn" id="qb-reset" title="Restablecer Vista">
+            <span class="material-icons-round">center_focus_strong</span>
+          </button>
+          <button class="quick-btn" id="qb-fullscreen" title="Pantalla Completa">
+            <span class="material-icons-round">fullscreen</span>
+          </button>
+        </div>
+
+        <!-- WALK MODE HUD -->
+        <div id="walk-hud" class="hidden">
+          <div class="walk-controls-hint">
+            <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Mover &nbsp;|&nbsp;
+            <kbd>Mouse</kbd> Mirar &nbsp;|&nbsp;
+            <kbd>Space</kbd> Saltar &nbsp;|&nbsp;
+            <kbd>Esc</kbd> Salir
+          </div>
+          <button id="btn-exit-walk" class="exit-walk-btn">
+            <span class="material-icons-round">close</span> Salir del Recorrido
+          </button>
+        </div>
+
+        <!-- MEASUREMENT OVERLAY -->
+        <div id="measure-hud" class="hidden">
+          <div class="measure-info">
+            <span class="material-icons-round">straighten</span>
+            Haz clic en dos puntos para medir distancia
+          </div>
+          <div id="measure-result"></div>
+          <button id="btn-exit-measure" class="exit-btn-small">
+            <span class="material-icons-round">close</span> Salir
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: Inspector + Scene Tree -->
+      <aside id="right-panel">
+        <div class="panel-tabs">
+          <button class="panel-tab active" data-panel="inspector">
+            <span class="material-icons-round">info</span> Inspector
+          </button>
+          <button class="panel-tab" data-panel="tree">
+            <span class="material-icons-round">account_tree</span> Escena
+          </button>
+        </div>
+        
+        <div id="panel-inspector" class="panel-content">
+          <div class="info-placeholder">
+            <span class="material-icons-round">view_in_ar</span>
+            <p>Carga un modelo para ver la información</p>
+          </div>
+          <div id="model-info" class="hidden">
+            <div class="info-row"><span class="info-label">Nombre</span><span class="info-val" id="info-name">—</span></div>
+            <div class="info-row"><span class="info-label">Tamaño</span><span class="info-val" id="info-size">—</span></div>
+            <div class="info-row"><span class="info-label">Vértices</span><span class="info-val" id="info-vertices">—</span></div>
+            <div class="info-row"><span class="info-label">Polígonos</span><span class="info-val" id="info-polygons">—</span></div>
+            <div class="info-row"><span class="info-label">Materiales</span><span class="info-val" id="info-materials">—</span></div>
+            <div class="info-row"><span class="info-label">Texturas</span><span class="info-val" id="info-textures">—</span></div>
+            <div class="info-row"><span class="info-label">Animaciones</span><span class="info-val" id="info-animations">—</span></div>
+            <div class="info-row"><span class="info-label">Dimensiones</span><span class="info-val" id="info-dimensions">—</span></div>
+            <div class="info-row"><span class="info-label">Escala</span><span class="info-val" id="info-scale">—</span></div>
+            <div class="info-row"><span class="info-label">Formato</span><span class="info-val" id="info-format">—</span></div>
+          </div>
+        </div>
+
+        <div id="panel-tree" class="panel-content hidden">
+          <div class="info-placeholder" id="tree-placeholder">
+            <span class="material-icons-round">account_tree</span>
+            <p>Sin modelo cargado</p>
+          </div>
+          <div id="scene-tree-container"></div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- BOTTOM STATUS BAR -->
+    <footer id="status-bar">
+      <div class="status-left">
+        <span id="status-fps" class="status-item">
+          <span class="material-icons-round">speed</span> FPS: <span id="fps-val">—</span>
+        </span>
+        <span id="status-gpu" class="status-item">
+          <span class="material-icons-round">memory</span> <span id="gpu-val">—</span>
+        </span>
+      </div>
+      <div class="status-center">
+        <span id="status-msg">Listo — Arrastra un modelo 3D para comenzar</span>
+      </div>
+      <div class="status-right">
+        <span class="status-item" id="status-coords">
+          <span class="material-icons-round">place</span> x:0 y:0 z:0
+        </span>
+        <span class="status-item" id="status-network">
+          <span class="material-icons-round">wifi</span> <span id="network-ip">—</span>
+        </span>
+      </div>
+    </footer>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toast-container"></div>
+    
+    <!-- GIZMO (orientation helper) -->
+    <canvas id="gizmo-canvas" width="80" height="80" title="Orientación"></canvas>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
